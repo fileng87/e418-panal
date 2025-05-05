@@ -1,0 +1,23 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    # 使用 env_file 來載入 .env 中的環境變數
+    # 注意：這對於本地開發很方便，但在生產環境中，直接設置環境變數可能更安全。
+    env_file:
+      - .env
+    restart: unless-stopped
+    # 可以選擇性地掛載 volumes 以方便開發時的熱重載，但在生產映像中通常不建議
+    # volumes:
+    #   - ./src:/app/src
+    #   - ./public:/app/public
+
+networks:
+  default:
+    driver: bridge 

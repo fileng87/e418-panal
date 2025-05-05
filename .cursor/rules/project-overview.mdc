@@ -1,0 +1,73 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# E418 教室管理面板專案概觀
+
+本專案旨在為 e418 教室建立一個集中式的網頁管理面板。
+
+## 主要目標
+
+- 整合不同服務的 API (目前為 AdGuard Home)。
+- 提供教師專用的管理介面，限制特定 IP 位址才能存取。
+- 為學生提供公開資訊頁面。
+
+## 技術堆疊
+
+- **前端框架:** Next.js (App Router)
+- **UI 函式庫:** shadcn/ui
+- **動畫:** Framer Motion
+- **HTTP 客戶端:** Axios (用於後端 API 路由)
+- **後端 API:** Next.js API Routes (處理服務串接與驗證)
+- **套件管理:** pnpm
+
+## 訪問控制 ([src/middleware.ts](mdc:src/middleware.ts))
+
+- 使用 Next.js Middleware 實現基於 IP 的訪問控制。
+- 允許多個教師 IP 位址，設定於 `.env.local` 的 `TEACHER_IPS` (逗號分隔)。
+- **教師 IP:**
+    - 訪問 `/` 會自動重定向到 `/teacher`。
+    - 可以訪問 `/teacher`, `/adguard` 等管理頁面。
+- **非教師 IP:**
+    - 訪問 `/` 會看到學生版主頁。
+    - 訪問 `/teacher`, `/adguard` 等管理頁面會被重定向到 `/forbidden`。
+- 從 `x-forwarded-for` 標頭獲取客戶端 IP。
+- 包含本地開發模式的 IP 覆寫邏輯 (部署前需移除)。
+
+## 主要頁面與風格
+
+### 通用風格
+- 整體採用深色主題。
+- 背景為純黑，底部帶有動態呼吸的紫色光源效果。
+- 內容卡片搭配旋轉的彩色邊框光暈。
+- 利用 Framer Motion 為卡片和內容添加進入動畫。
+
+### 學生主頁 (`/` -> [src/app/page.tsx](mdc:src/app/page.tsx))
+- 顯示教室使用規則卡片。
+- 使用 Lucide 圖示點綴列表內容。
+- 不包含導覽按鈕。
+
+### 教師主頁 (`/teacher` -> [src/app/teacher/page.tsx](mdc:src/app/teacher/page.tsx))
+- 包含說明卡片，解釋面板功能。
+- 卡片下方有導覽按鈕，指向各管理功能 (如網站封鎖器)。
+
+### 網站封鎖器 (`/adguard` -> [src/app/adguard/page.tsx](mdc:src/app/adguard/page.tsx))
+- 僅限教師 IP 訪問。
+- 卡片標題旁顯示 AdGuard Home 運行狀態 (Badge)。
+- 提供 Switch 元件切換網站封鎖狀態。
+- 使用 Accordion 元件顯示「啟用的過濾器列表」和「自訂規則」。
+- 載入時使用 Skeleton 骨架屏，內容載入後有淡入動畫。
+- 提供返回主頁按鈕 (對教師而言會跳轉回 `/teacher`)。
+
+### 禁止訪問頁面 (`/forbidden` -> [src/app/forbidden/page.tsx](mdc:src/app/forbidden/page.tsx))
+- 顯示給嘗試訪問受限頁面的非教師 IP。
+- 包含提示訊息和圖示。
+- 提供返回主頁按鈕 (指向 `/`)。
+
+## 後端 API ([src/app/api/adguard](mdc:src/app/api/adguard))
+
+- `/api/adguard/status`: 獲取 AdGuard Home 狀態。
+- `/api/adguard/toggle`: 切換 AdGuard Home 保護狀態。
+- `/api/adguard/filters`: 獲取 AdGuard Home 過濾器列表。
+- 使用 Axios 與 AdGuard Home API 通訊，包含 Basic Auth 驗證 (憑證來自環境變數)。
