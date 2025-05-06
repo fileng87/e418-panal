@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,13 +117,14 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-black text-foreground leading-relaxed relative overflow-hidden;
+    @apply text-foreground relative overflow-hidden bg-black leading-relaxed;
   }
 }
 
 /* 定義新的光源呼吸動畫 */
 @keyframes pulseLight {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, 10%) scale(0.9); /* 縮小狀態 */
     opacity: 0.6;
   }
@@ -137,13 +138,17 @@
 body::after {
   content: '';
   /* 調整 bottom 使其更靠下 */
-  @apply absolute left-1/2 bottom-[-40vh] w-[250vw] h-[90vh];
+  @apply absolute bottom-[-40vh] left-1/2 h-[90vh] w-[250vw];
   /* 增加中心顏色的不透明度以提高對比度 */
-  background: radial-gradient(circle at center, theme('colors.purple.600 / 25%') 0%, transparent 60%);
+  background: radial-gradient(
+    circle at center,
+    theme('colors.purple.600 / 25%') 0%,
+    transparent 60%
+  );
   /* 固定水平居中，應用新的呼吸動畫 */
   transform: translateX(-50%);
   animation: pulseLight 10s ease-in-out infinite alternate;
-  @apply z-0 filter blur-[100px] pointer-events-none;
+  @apply pointer-events-none z-0 blur-[100px] filter;
 }
 
 /* --- 恢復卡片邊框光效 --- */
@@ -161,7 +166,7 @@ body::after {
 /* 卡片邊框光效容器樣式 */
 .card-glow-border {
   /* 移除 backdrop-blur 和 bg-black/5 */
-  @apply relative overflow-hidden rounded-lg p-1; 
+  @apply relative overflow-hidden rounded-lg p-1;
 }
 
 .card-glow-border::before {

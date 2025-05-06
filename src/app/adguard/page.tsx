@@ -1,270 +1,311 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ListFilter, BookUser } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from 'react';
+
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { motion } from 'framer-motion';
+import { ArrowLeft, BookUser, ListFilter } from 'lucide-react';
+import Link from 'next/link';
 
 // 假設的狀態類型
 interface AdGuardStatus {
-    protection_enabled: boolean;
-    running: boolean;
-    version: string;
-    // 可以添加更多從 AdGuard API 獲取的資訊
+  protection_enabled: boolean;
+  running: boolean;
+  version: string;
+  // 可以添加更多從 AdGuard API 獲取的資訊
 }
 
 interface AdGuardFilter {
-    id: number;
-    url: string;
-    name: string;
-    rules_count: number;
-    last_updated: string;
+  id: number;
+  url: string;
+  name: string;
+  rules_count: number;
+  last_updated: string;
 }
 
 interface FiltersData {
-    enabledFilters: AdGuardFilter[];
-    userRules: string[];
+  enabledFilters: AdGuardFilter[];
+  userRules: string[];
 }
 
 export default function AdGuardPage() {
-    const [status, setStatus] = useState<AdGuardStatus | null>(null);
-    const [isLoadingStatus, setIsLoadingStatus] = useState(true);
-    const [statusError, setStatusError] = useState<string | null>(null);
+  const [status, setStatus] = useState<AdGuardStatus | null>(null);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
-    const [filtersData, setFiltersData] = useState<FiltersData | null>(null);
-    const [isLoadingFilters, setIsLoadingFilters] = useState(true);
-    const [filtersError, setFiltersError] = useState<string | null>(null);
+  const [filtersData, setFiltersData] = useState<FiltersData | null>(null);
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [filtersError, setFiltersError] = useState<string | null>(null);
 
-    const [isToggling, setIsToggling] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
-    // 獲取狀態
-    const fetchStatus = async () => {
-        setIsLoadingStatus(true);
-        setStatusError(null);
-        try {
-            const res = await fetch('/api/adguard/status');
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data: AdGuardStatus = await res.json();
-            setStatus(data);
-        } catch (e) {
-            console.error("Fetch status error:", e);
-            const message = e instanceof Error ? e.message : String(e);
-            setStatusError(`無法獲取狀態: ${message}`); 
-            setStatus(null);
-        } finally { setIsLoadingStatus(false); }
-    };
+  // 獲取狀態
+  const fetchStatus = async () => {
+    setIsLoadingStatus(true);
+    setStatusError(null);
+    try {
+      const res = await fetch('/api/adguard/status');
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data: AdGuardStatus = await res.json();
+      setStatus(data);
+    } catch (e) {
+      console.error('Fetch status error:', e);
+      const message = e instanceof Error ? e.message : String(e);
+      setStatusError(`無法獲取狀態: ${message}`);
+      setStatus(null);
+    } finally {
+      setIsLoadingStatus(false);
+    }
+  };
 
-    const fetchFilters = async () => {
-        setIsLoadingFilters(true);
-        setFiltersError(null);
-        try {
-            const res = await fetch('/api/adguard/filters');
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            setFiltersData(data);
-        } catch (e) {
-            console.error("Fetch filters error:", e);
-            const message = e instanceof Error ? e.message : String(e);
-            setFiltersError(`無法獲取過濾器: ${message}`); 
-            setFiltersData(null);
-        } finally { setIsLoadingFilters(false); }
-    };
+  const fetchFilters = async () => {
+    setIsLoadingFilters(true);
+    setFiltersError(null);
+    try {
+      const res = await fetch('/api/adguard/filters');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setFiltersData(data);
+    } catch (e) {
+      console.error('Fetch filters error:', e);
+      const message = e instanceof Error ? e.message : String(e);
+      setFiltersError(`無法獲取過濾器: ${message}`);
+      setFiltersData(null);
+    } finally {
+      setIsLoadingFilters(false);
+    }
+  };
 
-    // 切換保護狀態
-    const handleToggleProtection = async (enabled: boolean) => {
-        if (!status || isToggling) return;
-        setIsToggling(true);
-        setStatusError(null);
-        setFiltersError(null);
+  // 切換保護狀態
+  const handleToggleProtection = async (enabled: boolean) => {
+    if (!status || isToggling) return;
+    setIsToggling(true);
+    setStatusError(null);
+    setFiltersError(null);
 
-        try {
-            const res = await fetch('/api/adguard/toggle', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ enable: enabled }),
-            });
-            if (!res.ok) {
-                 const errorData = await res.json().catch(() => ({}));
-                 throw new Error(errorData.message || `HTTP ${res.status}`);
-            }
-             setStatus(prev => prev ? { ...prev, protection_enabled: enabled } : null);
-            setTimeout(() => {
-                fetchStatus();
-                fetchFilters();
-            }, 1000); 
-        } catch (e) {
-            console.error("Toggle error:", e);
-            const message = e instanceof Error ? e.message : String(e);
-            setStatusError(`切換時發生錯誤: ${message}`); 
-            setTimeout(fetchStatus, 3000); 
-        } finally { setIsToggling(false); }
-    };
-
-    // 初次載入時獲取狀態
-    useEffect(() => {
+    try {
+      const res = await fetch('/api/adguard/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enable: enabled }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${res.status}`);
+      }
+      setStatus((prev) =>
+        prev ? { ...prev, protection_enabled: enabled } : null
+      );
+      setTimeout(() => {
         fetchStatus();
         fetchFilters();
-    }, []);
+      }, 1000);
+    } catch (e) {
+      console.error('Toggle error:', e);
+      const message = e instanceof Error ? e.message : String(e);
+      setStatusError(`切換時發生錯誤: ${message}`);
+      setTimeout(fetchStatus, 3000);
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
-    // --- 渲染邏輯 ---
-    const isLoading = isLoadingStatus || isLoadingFilters; // 整體載入狀態
-    const generalError = statusError || filtersError; // 顯示任一錯誤
+  // 初次載入時獲取狀態
+  useEffect(() => {
+    fetchStatus();
+    fetchFilters();
+  }, []);
 
-    return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 relative z-10 gap-8">
-            <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="w-full max-w-lg card-glow-border"
-            >
-                <Card className="shadow-xl border-none bg-card p-6 rounded-lg relative z-[1]">
-                    <CardHeader>
-                        <div className="flex items-center justify-between mb-1">
-                            <CardTitle className="text-2xl font-bold tracking-tight text-primary">網站封鎖器</CardTitle>
-                            {!isLoadingStatus && status && (
-                                status.running ? 
-                                <Badge variant="success">運行中</Badge> : 
-                                <Badge variant="destructive">已停止</Badge>
-                            )}
-                            {isLoadingStatus && <Skeleton className="h-5 w-16 rounded-md" />}
+  // --- 渲染邏輯 ---
+  const isLoading = isLoadingStatus || isLoadingFilters; // 整體載入狀態
+  const generalError = statusError || filtersError; // 顯示任一錯誤
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 relative z-10 gap-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="w-full max-w-lg card-glow-border"
+      >
+        <Card className="shadow-xl border-none bg-card p-6 rounded-lg relative z-[1]">
+          <CardHeader>
+            <div className="flex items-center justify-between mb-1">
+              <CardTitle className="text-2xl font-bold tracking-tight text-primary">
+                網站封鎖器
+              </CardTitle>
+              {!isLoadingStatus &&
+                status &&
+                (status.running ? (
+                  <Badge variant="success">運行中</Badge>
+                ) : (
+                  <Badge variant="destructive">已停止</Badge>
+                ))}
+              {isLoadingStatus && <Skeleton className="h-5 w-16 rounded-md" />}
+            </div>
+            <CardDescription>
+              啟用或停用特定網站（如 AI 工具、遊戲網站）的存取限制
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="min-h-[36px]">
+              {isLoadingStatus ? (
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-7 w-24" />
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                </div>
+              ) : status ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-between"
+                >
+                  <Label htmlFor="protection-switch" className="text-lg">
+                    網站封鎖
+                  </Label>
+                  <Switch
+                    id="protection-switch"
+                    checked={status.protection_enabled}
+                    onCheckedChange={handleToggleProtection}
+                    disabled={isToggling}
+                    aria-label="Toggle Website Blocking"
+                  />
+                </motion.div>
+              ) : (
+                !generalError && (
+                  <p className="text-muted-foreground">無法載入保護狀態。</p>
+                )
+              )}
+            </div>
+
+            {generalError && !isLoading && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-destructive pt-2"
+              >
+                {generalError}
+              </motion.p>
+            )}
+
+            <div className="pt-4 border-t border-border/30 min-h-[80px]">
+              {isLoadingFilters ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ) : filtersData ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="enabled-filters">
+                      <AccordionTrigger>
+                        <div className="flex items-center gap-2">
+                          <ListFilter className="h-4 w-4" />
+                          <span>
+                            已啟用的過濾器列表 (
+                            {filtersData.enabledFilters.length})
+                          </span>
                         </div>
-                        <CardDescription>啟用或停用特定網站（如 AI 工具、遊戲網站）的存取限制</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="min-h-[36px]">
-                            {isLoadingStatus ? (
-                                <div className="flex items-center justify-between">
-                                    <Skeleton className="h-7 w-24" />
-                                    <Skeleton className="h-6 w-12 rounded-full" />
-                                </div>
-                            ) : status ? (
-                                <motion.div 
-                                    initial={{ opacity: 0 }} 
-                                    animate={{ opacity: 1 }} 
-                                    transition={{ duration: 0.5 }}
-                                    className="flex items-center justify-between"
-                                >
-                                    <Label htmlFor="protection-switch" className="text-lg">網站封鎖</Label>
-                                    <Switch
-                                        id="protection-switch"
-                                        checked={status.protection_enabled}
-                                        onCheckedChange={handleToggleProtection}
-                                        disabled={isToggling}
-                                        aria-label="Toggle Website Blocking"
-                                    />
-                                </motion.div>
-                            ) : (
-                                !generalError && <p className="text-muted-foreground">無法載入保護狀態。</p>
-                            )}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {filtersData.enabledFilters.length > 0 ? (
+                          <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+                            {filtersData.enabledFilters.map((filter) => (
+                              <li
+                                key={filter.id || filter.url}
+                                title={`URL: ${filter.url}\n上次更新: ${filter.last_updated || '未知'}\n規則數: ${filter.rules_count || '未知'}`}
+                              >
+                                {filter.name}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">
+                            沒有啟用的過濾器列表。
+                          </p>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="user-rules">
+                      <AccordionTrigger>
+                        <div className="flex items-center gap-2">
+                          <BookUser className="h-4 w-4" />
+                          <span>自訂規則 ({filtersData.userRules.length})</span>
                         </div>
-                        
-                        {generalError && !isLoading && (
-                             <motion.p 
-                                initial={{ opacity: 0 }} 
-                                animate={{ opacity: 1 }} 
-                                className="text-destructive pt-2">
-                                {generalError}
-                             </motion.p>
-                        )} 
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {filtersData.userRules.length > 0 ? (
+                          <div className="text-sm bg-muted p-3 rounded-md overflow-y-auto max-h-60 text-muted-foreground space-y-1 font-mono">
+                            {filtersData.userRules.map((rule, index) => (
+                              <div
+                                key={index}
+                                className="border-b border-border/50 pb-1 pt-1 break-all"
+                              >
+                                {rule}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">
+                            沒有自訂規則。
+                          </p>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </motion.div>
+              ) : (
+                !generalError && (
+                  <p className="text-muted-foreground">無法載入過濾器資訊。</p>
+                )
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-                        <div className="pt-4 border-t border-border/30 min-h-[80px]">
-                             {isLoadingFilters ? (
-                                <div className="space-y-3">
-                                     <Skeleton className="h-10 w-full" />
-                                     <Skeleton className="h-10 w-full" />
-                                </div>
-                            ) : filtersData ? (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.5, delay: 0.1 }}
-                                >
-                                    <Accordion type="single" collapsible className="w-full">
-                                        <AccordionItem value="enabled-filters">
-                                            <AccordionTrigger>
-                                                 <div className="flex items-center gap-2">
-                                                     <ListFilter className="h-4 w-4" />
-                                                     <span>已啟用的過濾器列表 ({filtersData.enabledFilters.length})</span>
-                                                 </div>
-                                             </AccordionTrigger>
-                                            <AccordionContent>
-                                                {filtersData.enabledFilters.length > 0 ? (
-                                                    <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                                                        {filtersData.enabledFilters.map((filter) => (
-                                                            <li key={filter.id || filter.url} title={`URL: ${filter.url}\n上次更新: ${filter.last_updated || '未知'}\n規則數: ${filter.rules_count || '未知'}`}>
-                                                                {filter.name}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                ) : (
-                                                    <p className="text-sm text-muted-foreground italic">沒有啟用的過濾器列表。</p>
-                                                )}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                        <AccordionItem value="user-rules">
-                                             <AccordionTrigger>
-                                                 <div className="flex items-center gap-2">
-                                                     <BookUser className="h-4 w-4" />
-                                                     <span>自訂規則 ({filtersData.userRules.length})</span>
-                                                 </div>
-                                             </AccordionTrigger>
-                                            <AccordionContent>
-                                                {filtersData.userRules.length > 0 ? (
-                                                    <div className="text-sm bg-muted p-3 rounded-md overflow-y-auto max-h-60 text-muted-foreground space-y-1 font-mono">
-                                                        {filtersData.userRules.map((rule, index) => (
-                                                            <div key={index} className="border-b border-border/50 pb-1 pt-1 break-all">
-                                                                {rule}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-sm text-muted-foreground italic">沒有自訂規則。</p>
-                                                )}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
-                                </motion.div>
-                            ) : (
-                                 !generalError && <p className="text-muted-foreground">無法載入過濾器資訊。</p>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Link href="/" passHref>
-                  <Button variant="outline">
-                      <ArrowLeft className="mr-2 h-4 w-4" /> 返回主頁
-                  </Button>
-              </Link>
-            </motion.div>
-        </main>
-    );
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Link href="/" passHref>
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> 返回主頁
+          </Button>
+        </Link>
+      </motion.div>
+    </main>
+  );
 }
 
 // Helper function for Badge variant (assuming you have this set up in components/ui/badge)
-declare module "@/components/ui/badge" {
+declare module '@/components/ui/badge' {
   interface BadgeProps {
-    variant?: "default" | "secondary" | "destructive" | "outline" | "success"; // Add success variant if needed
+    variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success'; // Add success variant if needed
   }
-} 
+}

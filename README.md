@@ -7,16 +7,16 @@
 - **服務整合:** 透過後端 API 路由代理，整合不同服務的 API (目前已實作 AdGuard Home 的狀態查詢、切換及過濾器列表查看)。
 - **IP 訪問控制:** 使用 Next.js Middleware ([`src/middleware.ts`](mdc:src/middleware.ts)) 實現基於 IP 的訪問控制，區分教師與學生權限。
 - **條件式路由:**
-    - 教師 IP 訪問根目錄 `/` 會自動重定向到教師專用主頁 `/teacher`。
-    - 非教師 IP 訪問根目錄 `/` 會看到公開的學生版主頁。
-    - 非教師 IP 嘗試訪問 `/teacher` 或 `/adguard` 等管理頁面將被重定向至 `/forbidden`。
+  - 教師 IP 訪問根目錄 `/` 會自動重定向到教師專用主頁 `/teacher`。
+  - 非教師 IP 訪問根目錄 `/` 會看到公開的學生版主頁。
+  - 非教師 IP 嘗試訪問 `/teacher` 或 `/adguard` 等管理頁面將被重定向至 `/forbidden`。
 - **管理介面:** 提供視覺化的介面管理服務狀態 (例如：網站封鎖器開關)。
 - **動態 UI:**
-    - 整體採用深色主題。
-    - 頁面背景包含動態光源效果。
-    - 內容卡片使用旋轉邊框光暈效果。
-    - 使用 Framer Motion 實現頁面與元件動畫。
-    - 使用 shadcn/ui 元件庫及 Lucide 圖示。
+  - 整體採用深色主題。
+  - 頁面背景包含動態光源效果。
+  - 內容卡片使用旋轉邊框光暈效果。
+  - 使用 Framer Motion 實現頁面與元件動畫。
+  - 使用 shadcn/ui 元件庫及 Lucide 圖示。
 
 ## 技術堆疊
 
@@ -48,6 +48,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
 ## 開始使用
 
 1.  **安裝依賴:**
+
     ```bash
     pnpm install
     ```
@@ -56,6 +57,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
     建立並填寫 `.env.local` 檔案 (參考上方說明)。
 
 3.  **啟動開發伺服器:**
+
     ```bash
     pnpm dev
     ```
@@ -86,6 +88,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
 您也可以使用 Docker 來建置和執行此應用程式。
 
 1.  **建置 Docker 映像檔:**
+
     ```bash
     docker build -t e418-panal .
     ```
@@ -102,6 +105,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
     ```
 
     或者，您可以逐一傳遞環境變數：
+
     ```bash
     docker run -d -p 3000:3000 \
       -e ADGUARD_URL="http://YOUR_ADGUARD_IP_OR_HOSTNAME:PORT" \
