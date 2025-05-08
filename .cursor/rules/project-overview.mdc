@@ -21,6 +21,8 @@ alwaysApply: true
 - **HTTP 客戶端:** Axios (用於後端 API 路由)
 - **後端 API:** Next.js API Routes (處理服務串接與驗證)
 - **套件管理:** pnpm
+- **自訂 Hooks:**
+    - `useAdGuardStatus` ([src/hooks/useAdGuardStatus.ts](mdc:src/hooks/useAdGuardStatus.ts)): 用於獲取和管理 AdGuard Home 服務狀態，整合 React Query。
 
 ## 訪問控制 ([src/middleware.ts](mdc:src/middleware.ts))
 
@@ -58,7 +60,7 @@ alwaysApply: true
 - 提供 Switch 元件切換網站封鎖狀態。
 - 使用 Accordion 元件顯示「啟用的過濾器列表」和「自訂規則」。
 - 載入時使用 Skeleton 骨架屏，內容載入後有淡入動畫。
-- 提供返回主頁按鈕 (對教師而言會跳轉回 `/teacher`)。
+- 提供返回主頁按鈕，位於卡片上方左側 (對教師而言會跳轉回 `/teacher`)。
 
 ### 禁止訪問頁面 (`/forbidden` -> [src/app/forbidden/page.tsx](mdc:src/app/forbidden/page.tsx))
 - 顯示給嘗試訪問受限頁面的非教師 IP。
