@@ -19,19 +19,12 @@ import {
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { AdGuardStatus, useAdGuardStatus } from '@/hooks/useAdGuardStatus';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { ArrowLeft, BookUser, ListFilter } from 'lucide-react';
 import Link from 'next/link';
-
-// 假設的狀態類型
-interface AdGuardStatus {
-  protection_enabled: boolean;
-  running: boolean;
-  version: string;
-  // 可以添加更多從 AdGuard API 獲取的資訊
-}
 
 interface AdGuardFilter {
   id: number;
@@ -52,11 +45,6 @@ interface ToggleApiResponse {
 }
 
 // --- API request functions ---
-const fetchAdGuardStatus = async (): Promise<AdGuardStatus> => {
-  const { data } = await axios.get('/api/adguard/status');
-  return data;
-};
-
 const fetchAdGuardFilters = async (): Promise<FiltersData> => {
   const { data } = await axios.get('/api/adguard/filters');
   return data;
@@ -77,10 +65,7 @@ export default function AdGuardPage() {
     isLoading: isLoadingStatus,
     isError: isStatusError,
     error: statusError,
-  } = useQuery<AdGuardStatus, Error>({
-    queryKey: ['adguardStatus'],
-    queryFn: fetchAdGuardStatus,
-  });
+  } = useAdGuardStatus();
 
   const {
     data: filtersData,
@@ -126,6 +111,20 @@ export default function AdGuardPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 relative z-10 gap-8">
+      {/* 返回主頁按鈕 - 移至卡片上方並靠左 */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="w-full max-w-lg flex justify-start"
+      >
+        <Button variant="outline" asChild>
+          <Link href="/teacher">
+            <ArrowLeft className="mr-2 h-4 w-4" /> 返回主頁
+          </Link>
+        </Button>
+      </motion.div>
+
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -263,14 +262,6 @@ export default function AdGuardPage() {
                   <p className="text-muted-foreground">無法載入過濾器資訊。</p>
                 )
               )}
-            </div>
-
-            <div className="flex justify-start pt-6">
-              <Button variant="outline" asChild>
-                <Link href="/teacher">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> 返回主頁
-                </Link>
-              </Button>
             </div>
           </CardContent>
         </Card>

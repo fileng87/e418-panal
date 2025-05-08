@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-// 移除 Info
+// 移除 Info (此註解似乎已過時，Info 仍被使用)
 import {
   Card,
   CardContent,
@@ -9,11 +9,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useAdGuardStatus } from '@/hooks/useAdGuardStatus';
+// 匯入新的 Hook
 import { motion } from 'framer-motion';
-import { Ban, Info, ListChecks, Settings, Wrench } from 'lucide-react';
+// 從 lucide-react 移除未使用的 ListChecks，保留 Ban, Info, Settings, Wrench
+import { Ban, Info, Settings, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TeacherHomePage() {
+  const { data: adguardApiStatus, isLoading: isLoadingAdguardStatus } =
+    useAdGuardStatus();
+
+  const getStatusText = () => {
+    if (isLoadingAdguardStatus) return '載入中...';
+    if (adguardApiStatus?.protection_enabled) return '運作中';
+    return '已停用/離線';
+  };
+
+  const getStatusClass = () => {
+    if (isLoadingAdguardStatus) return 'bg-gray-400 animate-pulse';
+    if (adguardApiStatus?.protection_enabled) return 'bg-green-500';
+    return 'bg-red-500';
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 relative z-10 gap-8">
       {/* 說明卡片 */}
@@ -76,13 +94,29 @@ export default function TeacherHomePage() {
         className="flex gap-4 mt-6" // 稍微調整上方間距
       >
         <Link href="/adguard" passHref>
-          <Button variant="outline">
+          <Button variant="outline" className="flex items-center">
             <Ban className="mr-2 h-4 w-4" /> 網站封鎖器
+            <span
+              title={`AdGuard 服務狀態: ${getStatusText()}`}
+              className={`ml-2 h-2.5 w-2.5 rounded-full inline-block ${getStatusClass()}`}
+            ></span>
           </Button>
         </Link>
-        <Link href="/some-other-tool" passHref>
-          <Button variant="outline" disabled>
+        <Link
+          href="/some-other-tool"
+          onClick={(e) => {
+            e.preventDefault();
+          }}
+          aria-disabled="true"
+          tabIndex={-1}
+          className="cursor-not-allowed"
+        >
+          <Button variant="outline" disabled className="flex items-center">
             <Wrench className="mr-2 h-4 w-4" /> 其他工具 (待開發)
+            <span
+              title="服務狀態: 待開發"
+              className="ml-2 h-2.5 w-2.5 rounded-full inline-block bg-gray-400"
+            ></span>
           </Button>
         </Link>
       </motion.div>
