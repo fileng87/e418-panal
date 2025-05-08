@@ -22,13 +22,13 @@ export default function TeacherHomePage() {
 
   const getStatusText = () => {
     if (isLoadingAdguardStatus) return '載入中...';
-    if (adguardApiStatus?.protection_enabled) return '運作中';
+    if (adguardApiStatus?.running) return '運行中';
     return '已停用/離線';
   };
 
   const getStatusClass = () => {
     if (isLoadingAdguardStatus) return 'bg-gray-400 animate-pulse';
-    if (adguardApiStatus?.protection_enabled) return 'bg-green-500';
+    if (adguardApiStatus?.running) return 'bg-green-500';
     return 'bg-red-500';
   };
 
@@ -78,7 +78,7 @@ export default function TeacherHomePage() {
                 <span className="text-base leading-relaxed text-muted-foreground">
                   <strong>重要提醒：</strong>
                   本教室電腦均已安裝還原系統，個人檔案或需永久保存的資料，請務必存放於{' '}
-                  <strong>D 槽</strong>，以免遺失。
+                  <strong>隨身碟 或 D槽</strong>，以免遺失。
                 </span>
               </li>
             </ul>
