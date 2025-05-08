@@ -21,15 +21,7 @@ export default function TeacherHomePage() {
     data: adguardApiStatus,
     isLoading: isLoadingAdguardStatus,
     isError: isAdguardStatusError,
-    error: adguardStatusError,
   } = useAdGuardStatus();
-
-  const getStatusText = () => {
-    if (isLoadingAdguardStatus) return '載入中...';
-    if (isAdguardStatusError) return '連線失敗';
-    if (adguardApiStatus?.running) return '運行中';
-    return '已停用/離線';
-  };
 
   const getStatusClass = () => {
     if (isLoadingAdguardStatus) return 'bg-gray-400 animate-pulse';

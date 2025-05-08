@@ -21,7 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { AdGuardStatus, useAdGuardStatus } from '@/hooks/useAdGuardStatus';
+import { useAdGuardStatus } from '@/hooks/useAdGuardStatus';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -63,7 +63,7 @@ const toggleAdGuardProtection = async (
 // API function to update a single filter's state via our new backend route
 const updateSingleAdGuardFilter = async (
   filterToUpdate: AdGuardFilter
-): Promise<any> => {
+): Promise<unknown> => {
   console.log(
     `Frontend: Requesting update for filter: ${filterToUpdate.name}, enabled: ${filterToUpdate.enabled}`
   );
@@ -159,7 +159,7 @@ export default function AdGuardPage() {
   const {
     mutateAsync: updateFilterMutation,
     isPending: isUpdatingSingleFilter,
-  } = useMutation<any, Error, AdGuardFilter>({
+  } = useMutation<unknown, Error, AdGuardFilter>({
     mutationFn: updateSingleAdGuardFilter,
     // onSuccess/onError can be handled per call or globally if needed
   });
