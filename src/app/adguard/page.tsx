@@ -351,12 +351,7 @@ export default function AdGuardPage() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
                 >
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="w-full"
-                    defaultValue="manage-filters"
-                  >
+                  <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="manage-filters">
                       <AccordionTrigger>
                         <div className="flex items-center justify-between w-full">
