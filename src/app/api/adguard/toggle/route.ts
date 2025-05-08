@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     const response = await axios.post(
       apiUrl,
-      { enable: enable }, // AdGuard API 需要的請求體
+      { enabled: enable }, // AdGuard API 需要的請求體
       {
         auth: {
           username: adguardUser,
