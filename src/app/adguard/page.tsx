@@ -46,6 +46,11 @@ interface FiltersData {
   userRules: string[];
 }
 
+// Define a more specific type for the API response
+interface ToggleApiResponse {
+  message: string;
+}
+
 // --- API request functions ---
 const fetchAdGuardStatus = async (): Promise<AdGuardStatus> => {
   const { data } = await axios.get('/api/adguard/status');
@@ -57,7 +62,9 @@ const fetchAdGuardFilters = async (): Promise<FiltersData> => {
   return data;
 };
 
-const toggleAdGuardProtection = async (enabled: boolean): Promise<any> => {
+const toggleAdGuardProtection = async (
+  enabled: boolean
+): Promise<ToggleApiResponse> => {
   const { data } = await axios.post('/api/adguard/toggle', { enable: enabled });
   return data;
 };
@@ -86,16 +93,18 @@ export default function AdGuardPage() {
   });
 
   const { mutate: toggleProtection, isPending: isToggling } = useMutation<
-    any,
+    ToggleApiResponse,
     Error,
     boolean
   >({
     mutationFn: toggleAdGuardProtection,
-    onSuccess: () => {
+    onSuccess: (apiResponse, variables) => {
       queryClient.invalidateQueries({ queryKey: ['adguardStatus'] });
       console.log(
-        'AdGuard protection toggled successfully, refetching status.'
+        'AdGuard protection toggled successfully, refetching status. Message:',
+        apiResponse.message
       );
+      console.log(`Attempted to set protection to: ${variables}`);
     },
     onError: (error) => {
       console.error('Error toggling AdGuard protection:', error.message);
