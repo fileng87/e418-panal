@@ -41,18 +41,17 @@ export async function GET() {
       timeout: 5000, // 將超時時間修改為 5 秒
     });
 
-    // 可以選擇只回傳需要的欄位，例如啟用的過濾器列表
-    const enabledFilters =
-      response.data.filters?.filter((f) => f.enabled) ?? [];
+    // 回傳所有從 AdGuard Home 獲取的過濾器，它們應包含各自的 enabled 狀態
+    const allFilters = response.data.filters ?? [];
     // 過濾掉空字串的自訂規則
     const rawUserRules = response.data.user_rules ?? [];
     const userRules = rawUserRules.filter((rule) => rule && rule.trim() !== '');
 
     console.log(
-      `Successfully fetched ${enabledFilters.length} enabled filters and ${userRules.length} non-empty user rules.`
+      `Successfully fetched ${allFilters.length} total filters and ${userRules.length} non-empty user rules.`
     );
     return NextResponse.json({
-      enabledFilters: enabledFilters,
+      allFilters: allFilters, // 修改回傳欄位名稱
       userRules: userRules, // 回傳過濾後的陣列
     });
   } catch (error) {
