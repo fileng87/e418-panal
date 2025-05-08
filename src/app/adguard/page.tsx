@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
+// import { useEffect, useState } from 'react'; // useState might still be needed for some local UI states
 import {
   Accordion,
   AccordionContent,
@@ -20,6 +19,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { ArrowLeft, BookUser, ListFilter } from 'lucide-react';
 import Link from 'next/link';
@@ -45,99 +46,74 @@ interface FiltersData {
   userRules: string[];
 }
 
+// --- API request functions ---
+const fetchAdGuardStatus = async (): Promise<AdGuardStatus> => {
+  const { data } = await axios.get('/api/adguard/status');
+  return data;
+};
+
+const fetchAdGuardFilters = async (): Promise<FiltersData> => {
+  const { data } = await axios.get('/api/adguard/filters');
+  return data;
+};
+
+const toggleAdGuardProtection = async (enabled: boolean): Promise<any> => {
+  const { data } = await axios.post('/api/adguard/toggle', { enable: enabled });
+  return data;
+};
+
 export default function AdGuardPage() {
-  const [status, setStatus] = useState<AdGuardStatus | null>(null);
-  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
-  const [statusError, setStatusError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const [filtersData, setFiltersData] = useState<FiltersData | null>(null);
-  const [isLoadingFilters, setIsLoadingFilters] = useState(true);
-  const [filtersError, setFiltersError] = useState<string | null>(null);
+  const {
+    data: status,
+    isLoading: isLoadingStatus,
+    isError: isStatusError,
+    error: statusError,
+  } = useQuery<AdGuardStatus, Error>({
+    queryKey: ['adguardStatus'],
+    queryFn: fetchAdGuardStatus,
+  });
 
-  const [isToggling, setIsToggling] = useState(false);
+  const {
+    data: filtersData,
+    isLoading: isLoadingFilters,
+    isError: isFiltersError,
+    error: filtersErrorData,
+  } = useQuery<FiltersData, Error>({
+    queryKey: ['adguardFilters'],
+    queryFn: fetchAdGuardFilters,
+  });
 
-  // 獲取狀態
-  const fetchStatus = async () => {
-    setIsLoadingStatus(true);
-    setStatusError(null);
-    try {
-      const res = await fetch('/api/adguard/status');
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data: AdGuardStatus = await res.json();
-      setStatus(data);
-    } catch (e) {
-      console.error('Fetch status error:', e);
-      const message = e instanceof Error ? e.message : String(e);
-      setStatusError(`無法獲取狀態: ${message}`);
-      setStatus(null);
-    } finally {
-      setIsLoadingStatus(false);
-    }
-  };
-
-  const fetchFilters = async () => {
-    setIsLoadingFilters(true);
-    setFiltersError(null);
-    try {
-      const res = await fetch('/api/adguard/filters');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setFiltersData(data);
-    } catch (e) {
-      console.error('Fetch filters error:', e);
-      const message = e instanceof Error ? e.message : String(e);
-      setFiltersError(`無法獲取過濾器: ${message}`);
-      setFiltersData(null);
-    } finally {
-      setIsLoadingFilters(false);
-    }
-  };
-
-  // 切換保護狀態
-  const handleToggleProtection = async (enabled: boolean) => {
-    if (!status || isToggling) return;
-    setIsToggling(true);
-    setStatusError(null);
-    setFiltersError(null);
-
-    try {
-      const res = await fetch('/api/adguard/toggle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enable: enabled }),
-      });
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${res.status}`);
-      }
-      setStatus((prev) =>
-        prev ? { ...prev, protection_enabled: enabled } : null
+  const { mutate: toggleProtection, isPending: isToggling } = useMutation<
+    any,
+    Error,
+    boolean
+  >({
+    mutationFn: toggleAdGuardProtection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adguardStatus'] });
+      console.log(
+        'AdGuard protection toggled successfully, refetching status.'
       );
-      setTimeout(() => {
-        fetchStatus();
-        fetchFilters();
-      }, 1000);
-    } catch (e) {
-      console.error('Toggle error:', e);
-      const message = e instanceof Error ? e.message : String(e);
-      setStatusError(`切換時發生錯誤: ${message}`);
-      setTimeout(fetchStatus, 3000);
-    } finally {
-      setIsToggling(false);
-    }
+    },
+    onError: (error) => {
+      console.error('Error toggling AdGuard protection:', error.message);
+      // Optionally, display a toast notification here
+    },
+  });
+
+  const handleToggleProtection = (enabled: boolean) => {
+    if (!status || isToggling) return;
+    toggleProtection(enabled);
   };
 
-  // 初次載入時獲取狀態
-  useEffect(() => {
-    fetchStatus();
-    fetchFilters();
-  }, []);
-
-  // --- 渲染邏輯 ---
-  const isLoading = isLoadingStatus || isLoadingFilters; // 整體載入狀態
-  const generalError = statusError || filtersError; // 顯示任一錯誤
+  const isLoading = isLoadingStatus || isLoadingFilters;
+  const generalError = isStatusError
+    ? statusError?.message
+    : isFiltersError
+      ? filtersErrorData?.message
+      : null;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 relative z-10 gap-8">
@@ -187,7 +163,7 @@ export default function AdGuardPage() {
                     id="protection-switch"
                     checked={status.protection_enabled}
                     onCheckedChange={handleToggleProtection}
-                    disabled={isToggling}
+                    disabled={isToggling || isLoadingStatus}
                     aria-label="Toggle Website Blocking"
                   />
                 </motion.div>
@@ -250,7 +226,7 @@ export default function AdGuardPage() {
                         )}
                       </AccordionContent>
                     </AccordionItem>
-                    <AccordionItem value="user-rules">
+                    <AccordionItem value="custom-rules">
                       <AccordionTrigger>
                         <div className="flex items-center gap-2">
                           <BookUser className="h-4 w-4" />
@@ -259,16 +235,11 @@ export default function AdGuardPage() {
                       </AccordionTrigger>
                       <AccordionContent>
                         {filtersData.userRules.length > 0 ? (
-                          <div className="text-sm bg-muted p-3 rounded-md overflow-y-auto max-h-60 text-muted-foreground space-y-1 font-mono">
+                          <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono">
                             {filtersData.userRules.map((rule, index) => (
-                              <div
-                                key={index}
-                                className="border-b border-border/50 pb-1 pt-1 break-all"
-                              >
-                                {rule}
-                              </div>
+                              <li key={index}>{rule}</li>
                             ))}
-                          </div>
+                          </ul>
                         ) : (
                           <p className="text-sm text-muted-foreground italic">
                             沒有自訂規則。
@@ -284,20 +255,16 @@ export default function AdGuardPage() {
                 )
               )}
             </div>
+
+            <div className="flex justify-start pt-6">
+              <Button variant="outline" asChild>
+                <Link href="/teacher">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> 返回主頁
+                </Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Link href="/" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" /> 返回主頁
-          </Button>
-        </Link>
       </motion.div>
     </main>
   );
