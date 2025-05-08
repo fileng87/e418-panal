@@ -45,7 +45,7 @@ export default function HomePage() {
               <li className="flex items-start">
                 <Cable className="mr-3 mt-1 h-5 w-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
                 <span className="text-base leading-relaxed text-foreground">
-                  請勿隨意更動教室設備線路與設定。
+                  請勿隨意更動教室設備線路與設定；若有調整，離開前請務必恢復原狀。
                 </span>
               </li>
               <li className="flex items-start">
@@ -57,7 +57,7 @@ export default function HomePage() {
               <li className="flex items-start">
                 <PowerOff className="mr-3 mt-1 h-5 w-5 flex-shrink-0 text-red-500 dark:text-red-400" />
                 <span className="text-base leading-relaxed text-foreground">
-                  實驗完成後，請確實關閉儀器電源。
+                  使用完畢後，請確實關閉電腦設備。
                 </span>
               </li>
               <li className="flex items-start">

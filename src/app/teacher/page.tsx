@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Ban, ListChecks, Settings, Wrench } from 'lucide-react';
+import { Ban, Info, ListChecks, Settings, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TeacherHomePage() {
@@ -29,13 +29,13 @@ export default function TeacherHomePage() {
               教師管理面板
             </CardTitle>
             <CardDescription className="pt-1 text-muted-foreground">
-              歡迎回來！請選擇您要管理的項目。
+              歡迎使用！請選擇您要管理的項目。
             </CardDescription>
           </CardHeader>
           <CardContent className="px-2 pt-4">
             {/* 讓小標題更突出 */}
             <p className="text-base font-semibold mb-4 text-foreground">
-              面板功能：
+              面板功能與提醒：
             </p>
             <ul className="space-y-4">
               {' '}
@@ -46,19 +46,21 @@ export default function TeacherHomePage() {
                 <Settings className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400" />
                 {/* 調整列表文字顏色 */}
                 <span className="text-base leading-relaxed text-muted-foreground">
-                  集中管理 e418 教室的各項網路服務與設定。
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <ListChecks className="mt-0.5 h-5 w-5 flex-shrink-0 text-teal-500 dark:text-teal-400" />
-                <span className="text-base leading-relaxed text-muted-foreground">
-                  提供直觀的操作介面，簡化日常管理任務。
+                  這裡可以幫您統一調整教室裡電腦和網路的一些設定。
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Ban className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
                 <span className="text-base leading-relaxed text-muted-foreground">
-                  目前包含「網站封鎖器」功能，未來將持續擴充。
+                  我們會持續增加和改進這裡的功能，讓管理更方便。
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-500 dark:text-yellow-400" />
+                <span className="text-base leading-relaxed text-muted-foreground">
+                  <strong>重要提醒：</strong>
+                  本教室電腦均已安裝還原系統，個人檔案或需永久保存的資料，請務必存放於{' '}
+                  <strong>D 槽</strong>，以免遺失。
                 </span>
               </li>
             </ul>
