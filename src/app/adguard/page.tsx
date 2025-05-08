@@ -157,6 +157,14 @@ export default function AdGuardPage() {
                   <Skeleton className="h-7 w-24" />
                   <Skeleton className="h-6 w-12 rounded-full" />
                 </div>
+              ) : isStatusError ? (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-destructive text-sm"
+                >
+                  服務狀態: 無法連接服務
+                </motion.p>
               ) : status ? (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -182,7 +190,7 @@ export default function AdGuardPage() {
               )}
             </div>
 
-            {generalError && !isLoading && (
+            {generalError && !isStatusError && !isLoading && (
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

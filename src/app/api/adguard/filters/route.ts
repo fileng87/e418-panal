@@ -38,7 +38,7 @@ export async function GET() {
   try {
     const response = await axios.get<AdGuardFilteringStatus>(apiUrl, {
       auth: { username: adguardUser, password: adguardPass },
-      timeout: 7000, // 稍微增加超時時間
+      timeout: 5000, // 將超時時間修改為 5 秒
     });
 
     // 可以選擇只回傳需要的欄位，例如啟用的過濾器列表

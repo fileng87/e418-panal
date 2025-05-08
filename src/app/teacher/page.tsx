@@ -17,19 +17,32 @@ import { Ban, Info, Settings, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TeacherHomePage() {
-  const { data: adguardApiStatus, isLoading: isLoadingAdguardStatus } =
-    useAdGuardStatus();
+  const {
+    data: adguardApiStatus,
+    isLoading: isLoadingAdguardStatus,
+    isError: isAdguardStatusError,
+    error: adguardStatusError,
+  } = useAdGuardStatus();
 
   const getStatusText = () => {
     if (isLoadingAdguardStatus) return '載入中...';
+    if (isAdguardStatusError) return '連線失敗';
     if (adguardApiStatus?.running) return '運行中';
     return '已停用/離線';
   };
 
   const getStatusClass = () => {
     if (isLoadingAdguardStatus) return 'bg-gray-400 animate-pulse';
+    if (isAdguardStatusError) return 'bg-red-500';
     if (adguardApiStatus?.running) return 'bg-green-500';
     return 'bg-red-500';
+  };
+
+  const getStatusTitle = () => {
+    if (isLoadingAdguardStatus) return '服務狀態: 載入中...';
+    if (isAdguardStatusError) return '服務狀態: 無法連接服務';
+    if (adguardApiStatus?.running) return '服務狀態: 運行中';
+    return '服務狀態: 已停用/離線';
   };
 
   return (
@@ -97,7 +110,7 @@ export default function TeacherHomePage() {
           <Button variant="outline" className="flex items-center">
             <Ban className="mr-2 h-4 w-4" /> 網站封鎖器
             <span
-              title={`AdGuard 服務狀態: ${getStatusText()}`}
+              title={getStatusTitle()}
               className={`ml-2 h-2.5 w-2.5 rounded-full inline-block ${getStatusClass()}`}
             ></span>
           </Button>
