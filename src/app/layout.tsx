@@ -36,8 +36,7 @@ export default function RootLayout({
         <QueryProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
             disableTransitionOnChange
           >
             <div className="fixed top-4 right-4 z-50">
