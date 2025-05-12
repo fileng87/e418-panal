@@ -77,12 +77,6 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
 
 ## 部署
 
-### 使用 Vercel
-
-推薦使用 [Vercel Platform](https://vercel.com/new) 進行部署。部署前請確保已在 Vercel 專案設定中配置好必要的環境變數 (同 `.env.local` 中的變數)。
-
-參考 [Next.js 部署文件](https://nextjs.org/docs/app/building-your-application/deploying) 獲取更多細節。
-
 ### 使用 Docker
 
 您也可以使用 Docker 來建置和執行此應用程式。
@@ -90,7 +84,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
 1.  **建置 Docker 映像檔:**
 
     ```bash
-    docker build -t e418-panal .
+    docker build -t e418-panel .
     ```
 
 2.  **執行 Docker 容器:**
@@ -101,7 +95,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
 
     ```bash
     # 將 .env.local 檔案傳遞給容器
-    docker run -d -p 3000:3000 --env-file .env --name e418-panal-app e418-panal
+    docker run -d -p 3000:3000 --env-file .env --name e418-panel-app e418-panel
     ```
 
     或者，您可以逐一傳遞環境變數：
@@ -112,7 +106,7 @@ TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
       -e ADGUARD_USERNAME="your_adguard_username" \
       -e ADGUARD_PASSWORD="your_adguard_password" \
       -e TEACHER_IPS="YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2" \
-      --name e418-panal-app e418-panal
+      --name e418-panel-app e418-panel
     ```
 
     **選項 B: 使用 `docker-compose` (推薦)**
