@@ -26,13 +26,6 @@ COPY next.config.ts postcss.config.mjs tsconfig.json components.json eslint.conf
 COPY public ./public
 COPY src ./src
 
-# Set build-time environment variables if necessary (e.g., NEXT_PUBLIC_*)
-# ARG NEXT_PUBLIC_API_URL
-# ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
-# Disable telemetry during build
-ENV NEXT_TELEMETRY_DISABLED 1
-
 RUN pnpm build
 
 # ---- Production Dependencies Only ----
@@ -40,7 +33,7 @@ RUN pnpm build
 FROM deps AS prod-deps
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
-RUN pnpm prune --prod
+RUN pnpm prune --prod --ignore-scripts
 
 # ---- Runner ----
 # Use a minimal Node.js image to run the application
@@ -54,10 +47,6 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder /app/public ./public
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED 1
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=prod-deps /app/node_modules ./node_modules
