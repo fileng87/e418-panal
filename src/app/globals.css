@@ -137,18 +137,25 @@
 /* 設定 body 偽元素作為光源 */
 body::after {
   content: '';
-  /* 調整 bottom 使其更靠下 */
   @apply absolute bottom-[-40vh] left-1/2 h-[90vh] w-[250vw];
-  /* 增加中心顏色的不透明度以提高對比度 */
+  background: radial-gradient(
+    circle at center,
+    theme('colors.yellow.100 / 60%') 0%,
+    theme('colors.purple.200 / 30%') 30%,
+    theme('colors.white / 40%') 60%,
+    transparent 80%
+  );
+  transform: translateX(-50%);
+  animation: pulseLight 10s ease-in-out infinite alternate;
+  @apply pointer-events-none z-0 blur-[100px] filter;
+}
+
+.dark body::after {
   background: radial-gradient(
     circle at center,
     theme('colors.purple.600 / 25%') 0%,
     transparent 60%
   );
-  /* 固定水平居中，應用新的呼吸動畫 */
-  transform: translateX(-50%);
-  animation: pulseLight 10s ease-in-out infinite alternate;
-  @apply pointer-events-none z-0 blur-[100px] filter;
 }
 
 /* --- 恢復卡片邊框光效 --- */
