@@ -1,5 +1,6 @@
 import { QueryProvider } from '@/components/providers/query-providers';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
@@ -30,7 +31,7 @@ export default function RootLayout({
       <head />
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
       >
         <QueryProvider>
           <ThemeProvider
@@ -39,6 +40,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <div className="fixed top-4 right-4 z-50">
+              <ThemeToggle />
+            </div>
             {children}
           </ThemeProvider>
         </QueryProvider>
