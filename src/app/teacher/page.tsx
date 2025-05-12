@@ -9,6 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useAdGuardStatus } from '@/hooks/useAdGuardStatus';
 // 匯入新的 Hook
 import { motion } from 'framer-motion';
@@ -98,15 +104,28 @@ export default function TeacherHomePage() {
         transition={{ delay: 0.2 }}
         className="flex gap-4 mt-6" // 稍微調整上方間距
       >
-        <Link href="/adguard" passHref>
-          <Button variant="outline" className="flex items-center">
-            <Ban className="mr-2 h-4 w-4" /> 網站封鎖器
-            <span
-              title={getStatusTitle()}
-              className={`ml-2 h-2.5 w-2.5 rounded-full inline-block ${getStatusClass()}`}
-            ></span>
-          </Button>
-        </Link>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href="/adguard" passHref>
+                <Button variant="outline" className="flex items-center">
+                  <Ban className="mr-2 h-4 w-4" /> 網站封鎖器
+                  <span
+                    title={getStatusTitle()}
+                    className={`ml-2 h-2.5 w-2.5 rounded-full inline-block ${getStatusClass()}`}
+                  ></span>
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                厭煩學生使用AI工具作弊了嗎？
+                <br />
+                這個工具可以幫您一鍵搞定！
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Link
           href="/some-other-tool"
           onClick={(e) => {
