@@ -29,10 +29,10 @@
 
 ## 環境變數設定
 
-專案需要設定以下環境變數才能正常運作。請在專案根目錄建立一個 `.env.local` 檔案，並填入以下內容 (替換為您的實際值):
+專案需要設定以下環境變數才能正常運作。請在專案根目錄建立一個 `.env` 檔案，並填入以下內容 (替換為您的實際值):
 
 ```bash
-# .env.local
+# .env
 
 # AdGuard Home 設定
 ADGUARD_URL=http://YOUR_ADGUARD_IP_OR_HOSTNAME:PORT
