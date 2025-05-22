@@ -43,8 +43,6 @@ ADGUARD_PASSWORD=your_adguard_password
 TEACHER_IPS=YOUR_TEACHER_IP_1,YOUR_TEACHER_IP_2
 ```
 
-**重要:** `.env.local` 檔案不應提交到版本控制系統 (例如 Git)。請確保它已加入 `.gitignore`。
-
 ## 開始使用
 
 1.  **安裝依賴:**
